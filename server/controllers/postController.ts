@@ -7,36 +7,7 @@ import { Generation } from "../models/Generation.js";
 import { Post } from "../models/Post.js";
 
 
-// Helper to poll Leonardo.ai
-const pollLeonardoJob = async (generationId: string, apiKey: string) : Promise<string>=>{
-    const maxRetries = 20;
-    const delay = 5000;
-
-    for(let i = 0; i < maxRetries; i++){
-        try {
-           const response = await axios.get(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {headers: {
-            accept: "application/json", authorization: `Bearer ${apiKey}`
-           }}) 
-
-           const generation = response.data.generations_by_pk;
-           if(generation.status === "COMPLETE"){
-            if(generation.generated_images && generation.generated_images.length > 0){
-                return generation.generated_images[0].url;
-            }
-            throw new Error("Generation complete but no images found.")
-           }
-           if(generation.status === "FAILED"){
-            throw new Error("Leonardo.ai generation failed.")
-           }
-        } catch (err: any) {
-            console.error("Polling error:", err?.response?.data || err.message);
-        }
-
-        await new Promise((resolve)=> setTimeout(resolve, delay));
-    }
-    throw new Error("Leonardo.ai generation timed out.")
-}
-
+// Using Hugging Face for image generation
 // Generate post
 // POST /api/posts/generate
 export const generatePost = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -77,42 +48,52 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
         let mediaUrl = "";
         if(generateImage){
            try {
-            const leonardoKey = process.env.LEONARDO_API_KEY;
-            if(leonardoKey){
-                // Use Leonardo.ai for image generation
-                const leoResponse = await axios.post(
-                    "https://cloud.leonardo.ai/api/rest/v2/generations",
-                    {
-                        "public": false,
-                        "model": "gpt-image-2",
-                        "parameters": {
-                            "quality": "LOW",
-                            "prompt": imagePrompt,
-                            "quantity": 1,
-                            "width": 1024,
-                            "height": 1024,
-                            "prompt_enhance": "OFF"
+            const huggingFaceKey = process.env.HUGGINGFACE_API_KEY || process.env.LEONARDO_API_KEY; // Fallback to existing key if they renamed it
+            let imageBuffer: Buffer | null = null;
+            
+            if(huggingFaceKey){
+                try {
+                    // Use Hugging Face for image generation
+                    const hfResponse = await axios.post(
+                        "https://api-inference.huggingface.co/models/fal/LTX-2.3-3DREAL-LoRA",
+                        { inputs: imagePrompt },
+                        {
+                            headers: { Authorization: `Bearer ${huggingFaceKey}` },
+                            responseType: "arraybuffer", // Important to get binary data
                         }
-                    },{
-                        headers:{
-                            accept: "application/json",
-                            authorization: `Bearer ${leonardoKey}`,
-                            "content-type": "application/json",
-                        }
-                    }
-                )
-
-                const generationId = leoResponse.data.generate.generationId;
-                const tempUrl = await pollLeonardoJob(generationId, leonardoKey);
-
-                // Upload to Cloudinary for persistence
-                const uploadResult = await cloudinary.uploader.upload(tempUrl, {
-                    folder: "ai-generations",
-                });
-                mediaUrl = uploadResult.secure_url;
+                    );
+                    imageBuffer = Buffer.from(hfResponse.data);
+                } catch (hfError: any) {
+                    console.error("Hugging Face API failed:", hfError?.response?.data?.toString() || hfError.message);
+                    console.log("Falling back to Pollinations AI...");
+                }
             }
+            
+            // Fallback to Pollinations AI if HF failed or no key provided
+            if(!imageBuffer) {
+                const pollResponse = await axios.get(
+                    `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=1024&nologo=true`,
+                    { responseType: 'arraybuffer' }
+                );
+                imageBuffer = Buffer.from(pollResponse.data);
+            }
+
+            // Upload binary image directly to Cloudinary
+            const uploadResult = await new Promise<any>((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "ai-generations" },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                stream.end(imageBuffer);
+            });
+            
+            mediaUrl = uploadResult.secure_url;
+            
            } catch (err: any) {
-                console.error("Image generation failed:", err);
+                console.error("Image generation totally failed:", err);
            } 
         }
 

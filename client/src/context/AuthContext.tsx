@@ -25,8 +25,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children})=
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(()=>{
-        const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
+        const storedUser = sessionStorage.getItem("user");
+        const storedToken = sessionStorage.getItem("token");
 
         if(storedUser && storedToken){
             setUser(JSON.parse(storedUser))
@@ -40,16 +40,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children})=
     const login = (userData: User, newToken: string)=>{
         setUser(userData)
         setToken(newToken)
-        localStorage.setItem("user", JSON.stringify(userData))
-        localStorage.setItem("token", newToken)
+        sessionStorage.setItem("user", JSON.stringify(userData))
+        sessionStorage.setItem("token", newToken)
         api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
     }
 
     const logout = ()=>{
         setUser(null)
         setToken(null)
-        localStorage.removeItem("user")
-        localStorage.removeItem("token")
+        sessionStorage.removeItem("user")
+        sessionStorage.removeItem("token")
         delete api.defaults.headers.common["Authorization"];
     }
 

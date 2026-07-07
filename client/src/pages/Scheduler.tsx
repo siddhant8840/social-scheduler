@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { PLATFORMS } from "../assets/assets";
-import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, SendIcon, XIcon } from "lucide-react";
+import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, ImageIcon, SendIcon, XIcon } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
@@ -78,23 +78,23 @@ const Scheduler = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full">
       {/* ── Compose panel ── */}
-      <div className="w-full lg:w-[460px] shrink-0">
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="w-full lg:w-[460px] shrink-0 animate-fade-in-up">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg text-slate-700">Compose Post</h2>
+              <h2 className="text-lg text-slate-800 font-medium">Compose Post</h2>
             </div>
 
             <form className="space-y-5" onSubmit={handleSchedule}>
               {/* Platforms */}
               <div>
-                <label className="block text-xs text-slate-500 uppercase mb-2">Platforms</label>
+                <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Platforms</label>
                 <div className="flex flex-wrap gap-3">
                   {PLATFORMS.map((p)=>{
                     const active = selectedPlatforms.includes(p.id);
                     return (
                       <button key={p.id} type="button" onClick={()=> togglePlatform(p.id)}
-                      className={`flex items-center gap-1.5 p-3 rounded-md border transition-all duration-150 ${active ? "bg-red-50 border-red-300 text-red-500 scale-103" : "border-slate-200 text-slate-500 hover:border-slate-300"}`}>
-                        <p.icon className="size-4.5" />
+                      className={`flex items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 ${active ? "bg-red-50 border-red-200 text-red-500 shadow-sm shadow-red-100/50 scale-105" : "border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-500"}`}>
+                        <p.icon className="size-[18px]" />
                       </button>
                     )
                   })}
@@ -103,16 +103,16 @@ const Scheduler = () => {
 
               {/* Content */}
               <div>
-                <label className="block text-xs text-slate-500 uppercase mb-2">Content</label>
-                <textarea required rows={5} placeholder="What do you want to share today?" className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm placeholder-slate-400 outline-none resize-none" value={content} onChange={(e)=>setContent(e.target.value)}/>
-                  <div className={`text-right text-xs mt-1 font-medium ${content.length > 270 ? "text-red-500" : "text-slate-400"}`}>
+                <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Content</label>
+                <textarea required rows={5} placeholder="What do you want to share today?" className="w-full px-5 py-4 bg-slate-50/80 border border-slate-200 rounded-2xl text-slate-900 text-sm placeholder-slate-400 outline-none resize-none focus:border-red-200 focus:ring-2 focus:ring-red-100 transition-all" value={content} onChange={(e)=>setContent(e.target.value)}/>
+                  <div className={`text-right text-xs mt-1 font-medium tabular-nums ${content.length > 270 ? "text-red-500" : "text-slate-400"}`}>
                     {content.length}/280
                   </div>
               </div>
 
               {/* Media upload */}
               <div>
-                <label className="block text-xs text-slate-500 uppercase mb-2">Media (optional)</label>
+                <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Media (optional)</label>
                 {mediaFile ? (
                   <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
                     {mediaFile.type.startsWith("image/") 
@@ -126,7 +126,8 @@ const Scheduler = () => {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex items-center justify-center gap-2 p-5 py-10 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-red-300 hover:bg-red-50/30 transition-all group">
+                  <label className="flex flex-col items-center justify-center gap-2 p-5 py-10 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-red-300 hover:bg-red-50/30 transition-all group">
+                    <ImageIcon className="size-6 text-slate-300 group-hover:text-red-400 transition-colors" />
                     <span className="text-sm text-slate-500 group-hover:text-red-600 transition-colors">Click to upload image or video</span>
                     <input type="file" accept="image/*,video/*" className="hidden" onChange={(e)=>e.target.files?.[0] && setMediaFile(e.target.files[0])}/>
                   </label>
@@ -136,24 +137,24 @@ const Scheduler = () => {
               {/* Date & Time */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase mb-2">Date</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Date</label>
                   <div className="relative">
                     <CalendarIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
-                    <input type="date" required className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm outline-none" value={scheduledDate} onChange={(e)=>setScheduledDate(e.target.value)}/>
+                    <input type="date" required className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm outline-none focus:border-red-200 focus:ring-2 focus:ring-red-100 transition-all" value={scheduledDate} onChange={(e)=>setScheduledDate(e.target.value)}/>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 uppercase mb-2">Date</label>
+                  <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Time</label>
                   <div className="relative">
                     <ClockIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
 
-                    <input type="time" required className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm outline-none" value={scheduledTime} onChange={(e)=>setScheduledTime(e.target.value)}/>
+                    <input type="time" required className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-900 text-sm outline-none focus:border-red-200 focus:ring-2 focus:ring-red-100 transition-all" value={scheduledTime} onChange={(e)=>setScheduledTime(e.target.value)}/>
                   </div>
                 </div>
               </div>
 
               {/* Submit */}
-              <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500 hover:bg-red-600 transition-all text-white rounded-lg">
+              <button type="submit" disabled={loading} className="group w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-red-500 to-red-600 hover:shadow-lg hover:shadow-red-200 transition-all duration-300 text-white rounded-xl font-medium active:scale-[0.98]">
                 {loading ? (
                   <>
                     <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -162,7 +163,7 @@ const Scheduler = () => {
                 ) : (
                   <>
                     Schedule Post
-                    <ArrowRightIcon className="size-4"/>
+                    <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5"/>
                   </>
                 )}
               </button>
@@ -173,15 +174,15 @@ const Scheduler = () => {
       {/* ── Queue panels ── */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
         {/* Upcoming */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden animate-fade-in-up delay-100 shadow-sm">
               <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100">
-                <CalendarDaysIcon className="size-4 text-zinc-500"/>
-                <h3 className="text-slate-900 text-sm">Upcoming</h3>
-                <span className="ml-auto text-xs font-bold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full">{scheduled.length}</span>
+                <CalendarDaysIcon className="size-4 text-blue-500"/>
+                <h3 className="text-slate-900 text-sm font-medium">Upcoming</h3>
+                <span className="ml-auto text-xs font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full border border-blue-100">{scheduled.length}</span>
               </div>
               <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
                 {scheduled.length === 0 ? (
-                  <div className="py-10 text-center text-slate-400 text-sm">No posts scheduled yet</div>
+                  <div className="py-12 text-center text-slate-400 text-sm">No posts scheduled yet</div>
                 ) : (
                   scheduled.map((post)=>(
                     <div key={post._id} className="px-5 py-4 hover:bg-slate-50/60 transition-colors">
@@ -206,15 +207,15 @@ const Scheduler = () => {
         </div>
 
         {/* Published */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden animate-fade-in-up delay-200 shadow-sm">
               <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100">
-                <SendIcon className="size-4 text-zinc-500"/>
-                <h3 className="text-slate-900 text-sm">Published</h3>
-                <span className="ml-auto text-xs font-bold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full">{published.length}</span>
+                <SendIcon className="size-4 text-emerald-500"/>
+                <h3 className="text-slate-900 text-sm font-medium">Published</h3>
+                <span className="ml-auto text-xs font-bold bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-full border border-emerald-100">{published.length}</span>
               </div>
               <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
                 {published.length === 0 ? (
-                  <div className="py-10 text-center text-slate-400 text-sm">No published posts yet </div>
+                  <div className="py-12 text-center text-slate-400 text-sm">No published posts yet </div>
                 ) : (
                   published.map((post)=>(
                     <div key={post._id} className="px-5 py-4 hover:bg-slate-50/60 transition-colors">
@@ -229,7 +230,7 @@ const Scheduler = () => {
                             {post.mediaType && <span className="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded-md font-semibold capitalize">{post.mediaType}</span>}
 
                             <span className="text-xs text-slate-400">{new Date(post.updatedAt).toLocaleString()}</span>
-                            <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full">Published</span>
+                            <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full font-medium">Published</span>
                           </div>
                       </div>
                           <p className="text-sm text-slate-500 line-clamp-2 max-w-4/5">{post.content}</p>
