@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { PLATFORMS } from "../assets/assets";
-import { ArrowRightIcon, CalendarIcon, ClockIcon, HistoryIcon, Loader2Icon, SparklesIcon, TimerIcon, Wand2Icon, XIcon, } from "lucide-react";
+import { ArrowRightIcon, CalendarIcon, ClockIcon, HistoryIcon, Loader2Icon, TimerIcon, Wand2Icon, XIcon, } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
@@ -92,7 +92,7 @@ const AIComposer = () => {
       {/* Input Section */}
       <div className="space-y-6 text-center mt-12 sm:mt-20 animate-fade-in-up">
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-50 to-pink-50 border border-violet-100 text-violet-600 text-xs px-3.5 py-1.5 rounded-full font-medium">
-          <SparklesIcon className="size-3.5" />
+          <div className="size-3.5" />
           AI-Powered Content
         </div>
         <h1 className="text-3xl text-slate-700 tracking-tight font-medium">What should we create today?</h1>
